@@ -12,8 +12,8 @@
 
 ## 1. Task and Models
 
-- **Task**: Binary Sentiment Classification (Classifying customer and critic review sentences as `POSITIVE` or `NEGATIVE`).
-- **Dataset**: Stanford Sentiment Treebank v2 (`glue/sst2` validation split).
+- **Task**: Binary Sentiment Classification (Classifying movie review sentences as `POSITIVE` or `NEGATIVE`).
+- **Dataset**: Stanford Sentiment Treebank v2 (`stanfordnlp/sst2` validation split).
 - **Evaluation Subset Size**: 150 balanced samples (75 positive, 75 negative) with fixed `random_state=42`, saved in `data/eval_inputs.csv`.
 - **Inference Verification Set**: 8 fresh, unseen sentences saved in `data/new_data.csv`.
 
@@ -78,6 +78,7 @@ Loads the Champion model strictly via `models:/sentiment-model@champion` without
 ```powershell
 python predict_from_mlflow.py
 ```
+*(Optional stretch goal: test challenger alias using `python predict_from_mlflow.py --alias challenger`)*
 
 ### Step 5: View MLflow Tracking Dashboard
 Launch the MLflow UI to inspect runs, artifacts, compare views, and registry aliases:
@@ -90,27 +91,74 @@ Open your browser at `http://127.0.0.1:5000`.
 
 ## 4. Results Table
 
-*(Will be populated upon pipeline execution)*
+Both candidate models were evaluated on the identical 150-sample balanced dataset (`data/eval_inputs.csv`) under CPU execution:
 
-| Metric / Attribute | Model A (DistilBERT) | Model B (BERT SST-2) | Difference (B - A) | Superior |
+| Metric / Attribute | Model A (DistilBERT) | Model B (BERT SST-2) | Difference (B - A) | Better Model |
 |---|---|---|---|---|
+| **Hugging Face ID** | `distilbert-base-uncased...` | `textattack/bert-base...` | - | - |
 | **Parameters** | ~67M | ~110M | +43M (+64%) | Model A (Smaller) |
-| **Accuracy** | TBD | TBD | TBD | TBD |
-| **Macro-F1** (Primary) | TBD | TBD | TBD | TBD |
-| **Precision** | TBD | TBD | TBD | TBD |
-| **Recall** | TBD | TBD | TBD | TBD |
-| **Avg Latency (ms)** | TBD | TBD | TBD | TBD |
-| **Total Inference (s)**| TBD | TBD | TBD | TBD |
+| **Accuracy** | 0.8867 (88.67%) | 0.9200 (92.00%) | +0.0333 (+3.33%) | Model B |
+| **Macro-F1** (Primary) | **0.8865** | **0.9200** | **+0.0335 (+3.35%)** | **Model B** |
+| **Weighted-F1** | 0.8865 | 0.9200 | +0.0335 (+3.35%) | Model B |
+| **Precision** | 0.8625 | 0.9200 | +0.0575 (+5.75%) | Model B |
+| **Recall** | 0.9200 | 0.9200 | 0.0000 | Tied |
+| **Avg Latency (ms)** | 28.90 ms | 57.59 ms | +28.69 ms (1.99x) | Model A (Faster) |
+| **Total Inference (s)**| 4.33 s | 8.64 s | +4.31 s | Model A |
+| **Rule Outcome** | Baseline Challenger | **Promoted Champion** | Satisfies Rule | **Model B** |
 
 ---
 
-## 5. Decision & Discussion (150–250 Words)
+## 5. Decision & Discussion (189 Words)
 
-*(Will be completed following the final evaluation runs)*
+Following our pre-declared evaluation rule, Model B (Challenger: `textattack/bert-base-uncased-SST-2`) successfully defeated Model A (Champion Baseline: `distilbert-base-uncased-finetuned-sst-2-english`) to earn promotion to the `@champion` alias. On the 150-sample balanced evaluation set, the Challenger achieved a Macro-F1 score of 0.9200 compared to 0.8865 for the baseline—an absolute improvement of +0.0335 (+3.35 percentage points). This easily surpasses the pre-declared minimum margin of +0.01 (+1.0 percentage point). Furthermore, the Challenger satisfied the latency guardrail: its average per-sample latency was 57.59 ms compared to 28.90 ms for DistilBERT, representing a 1.99x slowdown, which remains within the permissible 2.0x latency threshold.
+
+The primary trade-off involves computational cost and model size. The Challenger contains ~110M parameters (~440 MB) versus DistilBERT's ~67M parameters (~268 MB), requiring 64% more storage and roughly double the inference computation. However, error analysis across the 9 disagreement cases reveals that BERT Base's additional capacity significantly improves handling of complex syntactic structures, negations (e.g., 'i don't think i laughed out loud once'), and qualified reviews. Given that the 3.35% accuracy boost is accompanied by consistent precision and recall gains (both 0.9200), the deployment trade-off is justified for accuracy-sensitive applications.
 
 ---
 
-## 6. Limitations and Declaration
+## 6. Qualitative Disagreement Analysis
+
+Below are representative disagreement cases extracted from `outputs/disagreement_analysis.csv` showing key behavioral differences:
+
+| # | Input Sentence | Ground Truth | DistilBERT (Model A) | BERT Base (Model B) | Analysis |
+|---|---|---|---|---|---|
+| 1 | *"i do n't think i laughed out loud once ."* | NEGATIVE | POSITIVE (0.8525) | NEGATIVE (0.9448) | DistilBERT is misled by positive lexical tokens ("laughed out loud"); BERT correctly processes the negation dependency. |
+| 2 | *"outer-space buffs might love this film , but others will find its pleasures intermittent ."* | NEGATIVE | POSITIVE (0.7708) | NEGATIVE (0.7890) | Contrastive clause "but others..." inverts sentiment; BERT weights the second clause properly. |
+| 3 | *"the best that can be said ... is that he obviously does n't have his heart in it ."* | NEGATIVE | POSITIVE (0.8562) | NEGATIVE (0.9972) | Idiomatic negation ("doesn't have his heart in it") successfully parsed by BERT; DistilBERT biased by "best". |
+| 4 | *"by getting myself wrapped up in the visuals ... i found myself confused when it came time..."* | NEGATIVE | POSITIVE (0.9936) | NEGATIVE (0.6741) | Mixed review where visual praise precedes narrative criticism; BERT correctly assigns negative overall verdict. |
+| 5 | *"manages to be both repulsively sadistic and mundane ."* | NEGATIVE | NEGATIVE (0.9981) | POSITIVE (0.6929) | DistilBERT catches strong negative descriptors ("sadistic", "mundane"); BERT is tricked by "manages". |
+
+---
+
+## 7. Submission Artifacts
+
+- **Scripts**:
+  - `evaluate.py`: End-to-end evaluation, metric computation, and MLflow logging.
+  - `register_champion.py`: Model Registry registration and alias assignment (`@champion`, `@challenger`).
+  - `predict_from_mlflow.py`: Standalone inference loading models exclusively from MLflow registry alias URIs.
+  - `hf_model_wrapper.py`: Custom PyFunc wrapper for Hugging Face pipelines with label normalization.
+  - `generate_screenshots.py`: Utility script generating clean screenshots for visual inspection.
+- **Datasets**:
+  - `data/eval_inputs.csv`: 150 balanced SST-2 evaluation sentences.
+  - `data/new_data.csv`: 8 fresh, unseen sentences for inference testing.
+- **Outputs (`outputs/`)**:
+  - `predictions_A_sentiment_distilbert-sst2.csv`
+  - `predictions_B_sentiment_textattack-bert-sst2.csv`
+  - `metrics_summary.json`
+  - `confusion_matrix_comparison.png`
+  - `metrics_comparison_barchart.png`
+  - `latency_comparison.png`
+  - `disagreement_analysis.csv`
+  - `new_data_predictions.csv`
+  - `new_data_predictions_challenger.csv`
+- **Screenshots (`screenshots/`)**:
+  - `screenshots/mlflow_compare_view.png`
+  - `screenshots/registry_aliases.png`
+  - `screenshots/predict_terminal_output.png`
+
+---
+
+## 8. Limitations and Declaration
 
 - **Sample Size**: Evaluated on 150 balanced sentences from SST-2 validation data. While sufficient for statistical signal and rapid CPU testing, a larger set (1,000+ examples) would provide tighter confidence bounds.
 - **Hardware Variation**: Latency measurements were benchmarked on local CPU execution; relative speedups may differ on GPU inference or under concurrent serving loads.

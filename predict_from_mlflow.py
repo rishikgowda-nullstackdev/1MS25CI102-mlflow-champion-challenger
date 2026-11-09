@@ -13,6 +13,7 @@ Follows Lab 08 (MLflow Models) and Lab 11 (Model Registry with MLflow) principle
 
 import os
 import sys
+import argparse
 import pandas as pd
 import mlflow
 import mlflow.pyfunc
@@ -25,38 +26,44 @@ OUTPUT_DATA_PATH = os.path.join("outputs", "new_data_predictions.csv")
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Predict on new data using MLflow registered model alias.")
+    parser.add_argument("--alias", type=str, default="champion", choices=["champion", "challenger"],
+                        help="Model registry alias to load (default: champion)")
+    args = parser.parse_args()
+    target_alias = args.alias
+
     print("=" * 70)
-    print("MLFLOW MODEL REGISTRY: INFERENCE VIA ALIAS URI")
+    print(f"MLFLOW MODEL REGISTRY: INFERENCE VIA ALIAS URI (@{target_alias.upper()})")
     print("=" * 70)
 
     mlflow.set_tracking_uri(TRACKING_URI)
     client = MlflowClient()
 
-    # Step 1: Query the registry for the version assigned to @champion
+    # Step 1: Query the registry for the version assigned to the alias
     try:
-        model_version_info = client.get_model_version_by_alias(REGISTERED_MODEL_NAME, "champion")
+        model_version_info = client.get_model_version_by_alias(REGISTERED_MODEL_NAME, target_alias)
     except Exception as e:
-        print(f"Error: Could not find alias 'champion' for '{REGISTERED_MODEL_NAME}'.")
+        print(f"Error: Could not find alias '{target_alias}' for '{REGISTERED_MODEL_NAME}'.")
         print("Please ensure register_champion.py has been run successfully.")
         print(f"Details: {e}")
         sys.exit(1)
 
-    champion_version = model_version_info.version
+    loaded_version = model_version_info.version
     source_run_id = model_version_info.run_id
     tags = model_version_info.tags or {}
     hf_model_id = tags.get("hf_model_id", "Unknown HF Model")
 
     print(f"Registered Model Name : {REGISTERED_MODEL_NAME}")
-    print(f"Loaded Alias          : @champion")
-    print(f"Resolved Version      : Version {champion_version}")
+    print(f"Loaded Alias          : @{target_alias}")
+    print(f"Resolved Version      : Version {loaded_version}")
     print(f"Hugging Face Model ID : {hf_model_id}")
     print(f"Source Run ID         : {source_run_id}")
     print("-" * 70)
 
-    # Step 2: Load the Champion model via alias URI
-    model_uri = f"models:/{REGISTERED_MODEL_NAME}@champion"
+    # Step 2: Load the model via alias URI
+    model_uri = f"models:/{REGISTERED_MODEL_NAME}@{target_alias}"
     print(f"Loading model from URI: {model_uri} ...")
-    champion_model = mlflow.pyfunc.load_model(model_uri)
+    model = mlflow.pyfunc.load_model(model_uri)
     print("Model loaded successfully via MLflow pyfunc!")
 
     # Step 3: Load fresh, unseen data
@@ -69,14 +76,13 @@ def main():
 
     # Step 4: Run predictions through MLflow pyfunc
     print("\nRunning inference through MLflow...")
-    predictions_df = champion_model.predict(df_new)
+    predictions_df = model.predict(df_new)
 
     # Step 5: Display clean tabular results
     print("\n" + "=" * 70)
-    print("NEW DATA PREDICTIONS (CHAMPION MODEL)")
+    print(f"NEW DATA PREDICTIONS (@{target_alias.upper()} MODEL: {hf_model_id})")
     print("=" * 70)
     display_df = predictions_df.copy()
-    # Truncate text slightly for neat console table display
     display_df["text_preview"] = display_df["text"].apply(
         lambda t: (t[:50] + "...") if len(t) > 50 else t
     )
@@ -85,9 +91,10 @@ def main():
     print("=" * 70)
 
     # Step 6: Save outputs
-    os.makedirs(os.path.dirname(OUTPUT_DATA_PATH), exist_ok=True)
-    predictions_df.to_csv(OUTPUT_DATA_PATH, index=False)
-    print(f"\nPredictions successfully saved to '{OUTPUT_DATA_PATH}'.")
+    out_file = OUTPUT_DATA_PATH if target_alias == "champion" else os.path.join("outputs", f"new_data_predictions_{target_alias}.csv")
+    os.makedirs(os.path.dirname(out_file), exist_ok=True)
+    predictions_df.to_csv(out_file, index=False)
+    print(f"\nPredictions successfully saved to '{out_file}'.")
 
 
 if __name__ == "__main__":

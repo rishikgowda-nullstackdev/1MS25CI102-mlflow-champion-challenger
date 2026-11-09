@@ -1,0 +1,9 @@
+text,predicted_label,label_id,confidence_score
+The cinematography was breathtaking and the acting delivered genuine emotional depth.,POSITIVE,1,0.9999
+"An utterly disappointing film with a tedious plot and flat, uninspired characters.",NEGATIVE,0,0.9998
+I was pleasantly surprised by the clever humor and heartwarming climax.,POSITIVE,1,0.9999
+"A complete waste of time, full of cliches and dreadful pacing from start to finish.",NEGATIVE,0,0.9998
+The soundtrack alone makes this masterpiece worth watching on the biggest screen possible.,POSITIVE,1,0.9998
+The dialogue felt robotic and the story went absolutely nowhere for two hours.,NEGATIVE,0,0.9997
+Remarkably inventive storytelling that kept our whole group thoroughly engaged throughout.,POSITIVE,1,0.9999
+Poor direction and embarrassing dialogue ruined what could have been a decent premise.,NEGATIVE,0,0.9998
