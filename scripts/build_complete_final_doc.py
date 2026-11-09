@@ -474,8 +474,10 @@ with mlflow.start_run(run_name="Script 2 - Without Intercept"):
         ("outputs/metrics_comparison_barchart.png", "Figure 2: Performance Metrics Comparison (Accuracy, Macro-F1, Precision, Recall)"),
         ("outputs/latency_comparison.png", "Figure 3: Average Inference Latency Comparison per sample (ms)"),
         ("screenshots/predict_terminal_output.png", "Figure 4: Standalone Execution of predict_from_mlflow.py via @champion URI"),
-        ("screenshots/registry_aliases.png", "Figure 5: MLflow Model Registry showing @champion and @challenger Aliases"),
-        ("screenshots/mlflow_compare_view.png", "Figure 6: MLflow Experiment Compare View of Model Runs")
+        ("screenshots/registry_aliases.png", "Figure 5: MLflow Model Registry UI showing @champion and @challenger Aliases"),
+        ("screenshots/registry_versions_compare.png", "Figure 6: MLflow Model Registry - Comparing Model Versions 1 & 2"),
+        ("screenshots/mlflow_compare_metrics_tags.png", "Figure 7: MLflow Experiment Tracking UI Runs Compare View (Metrics & Student Metadata)"),
+        ("screenshots/mlflow_compare_parallel_coords.png", "Figure 8: MLflow Experiment Tracking UI - Parallel Coordinates Plot")
     ]
 
     for img_p, caption in mini_proj_images:

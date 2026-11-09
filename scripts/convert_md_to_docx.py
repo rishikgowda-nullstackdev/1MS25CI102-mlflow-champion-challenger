@@ -14,8 +14,8 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
 
-MD_PATH = "SUBMISSION_REPORT.md"
-DOCX_PATH = "SUBMISSION_REPORT.docx"
+MD_PATH = os.path.join("docs", "SUBMISSION_REPORT.md")
+DOCX_PATH = os.path.join("docs", "SUBMISSION_REPORT.docx")
 
 
 def set_cell_background(cell, fill_hex):
@@ -296,12 +296,14 @@ def create_submission_docx():
     run_img.font.color.rgb = RGBColor(26, 82, 118)
 
     images_to_embed = [
-        ("outputs/confusion_matrix_comparison.png", "Figure 1: Confusion Matrices for Champion (DistilBERT) and Challenger (BERT SST-2)"),
+        ("outputs/confusion_matrix_comparison.png", "Figure 1: Confusion Matrices for DistilBERT (Model A) and BERT (Model B)"),
         ("outputs/metrics_comparison_barchart.png", "Figure 2: Performance Metrics Comparison (Accuracy, Macro-F1, Precision, Recall)"),
         ("outputs/latency_comparison.png", "Figure 3: Average Inference Latency Comparison per sample (ms)"),
         ("screenshots/predict_terminal_output.png", "Figure 4: Terminal Execution of predict_from_mlflow.py (@champion URI)"),
-        ("screenshots/registry_aliases.png", "Figure 5: MLflow Model Registry showing @champion and @challenger Aliases"),
-        ("screenshots/mlflow_compare_view.png", "Figure 6: MLflow Experiment Tracking UI Runs Compare View")
+        ("screenshots/registry_aliases.png", "Figure 5: MLflow Model Registry UI showing @champion and @challenger Aliases"),
+        ("screenshots/registry_versions_compare.png", "Figure 6: MLflow Model Registry - Comparing Model Versions 1 & 2"),
+        ("screenshots/mlflow_compare_metrics_tags.png", "Figure 7: MLflow Experiment Tracking UI Runs Compare View (Metrics & Student Metadata)"),
+        ("screenshots/mlflow_compare_parallel_coords.png", "Figure 8: MLflow Experiment Tracking UI - Parallel Coordinates Plot")
     ]
 
     for img_path, caption in images_to_embed:
