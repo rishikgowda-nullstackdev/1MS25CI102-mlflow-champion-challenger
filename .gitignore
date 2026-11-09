@@ -1,0 +1,21 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# MLflow tracking and database
+mlruns/
+mlflow.db
+*.db
+
+# Python cache and checkpoints
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+.cache/
+huggingface_cache/
+
+# OS specific
+.DS_Store
+Thumbs.db
