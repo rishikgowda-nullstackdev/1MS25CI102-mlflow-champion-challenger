@@ -24,7 +24,7 @@ from docx.oxml import parse_xml, OxmlElement
 from docx.oxml.ns import nsdecls, qn
 
 SRC_DOCX = r"C:\Users\Rishikgowda S M\.gemini\antigravity\brain\b59598e1-a6fc-4206-b6b7-0249a1da905c\.user_uploaded\media_1794197864313_7188d1ca.docx"
-OUT_DOCX = "FINAL_MLOPS_LAB_RECORD_1MS25CI102.docx"
+OUT_DOCX = os.path.join("docs", "FINAL_MLOPS_LAB_RECORD_1MS25CI102.docx")
 
 
 def set_cell_background(cell, fill_hex):
