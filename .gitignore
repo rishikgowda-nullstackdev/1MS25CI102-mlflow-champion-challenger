@@ -5,8 +5,10 @@ ENV/
 
 # MLflow tracking and database
 mlruns/
+mlruns_lab02/
 mlflow.db
 *.db
+run_summary.txt
 
 # Python cache and checkpoints
 __pycache__/
