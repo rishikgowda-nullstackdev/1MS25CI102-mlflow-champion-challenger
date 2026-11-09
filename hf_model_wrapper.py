@@ -24,7 +24,16 @@ class HuggingFaceSentimentModel(mlflow.pyfunc.PythonModel):
         self.hf_model_id = hf_model_id
         self.pipeline = None
 
-    def load_context(self, context):
+    def __getstate__(self):
+        """
+        Keep serialized model artifact extremely small by excluding
+        live in-memory pipeline objects during pickling.
+        """
+        state = self.__dict__.copy()
+        state["pipeline"] = None
+        return state
+
+    def load_context(self, context=None):
         """
         Loads the Hugging Face pipeline when the model is restored via mlflow.pyfunc.load_model.
         """

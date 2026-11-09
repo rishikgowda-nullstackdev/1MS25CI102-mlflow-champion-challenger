@@ -77,25 +77,26 @@ def set_seed(seed: int = 42):
     torch.manual_seed(seed)
 
 
-def load_or_create_eval_dataset() -> pd.DataFrame:
+def load_or_create_eval_dataset(force_recreate: bool = True) -> pd.DataFrame:
     """
-    Loads or prepares a deterministic 150-sample balanced subset (75 pos, 75 neg) of SST-2.
+    Loads or prepares a deterministic 150-sample balanced subset (75 pos, 75 neg)
+    from the standard SST-2 validation split (stanfordnlp/sst2).
     Saves to data/eval_inputs.csv.
     """
     os.makedirs(DATA_DIR, exist_ok=True)
-    if os.path.exists(EVAL_INPUTS_PATH):
+    if os.path.exists(EVAL_INPUTS_PATH) and not force_recreate:
         print(f"Loading existing evaluation dataset from '{EVAL_INPUTS_PATH}'...")
         return pd.read_csv(EVAL_INPUTS_PATH)
 
-    print("Fetching SST-2 validation dataset...")
+    print("Fetching authentic SST-2 validation dataset...")
     try:
         from datasets import load_dataset
-        raw_dataset = load_dataset("glue", "sst2", split="validation")
+        raw_dataset = load_dataset("stanfordnlp/sst2", split="validation")
         df_all = pd.DataFrame(raw_dataset)
         df_all = df_all.rename(columns={"sentence": "text"})
     except Exception as e:
         print(f"Notice: Could not download via datasets library ({e}). Using curated SST-2 benchmark sentences.")
-        # Curated representative sentences from SST-2
+        # Fallback list if needed
         pos_sentences = [
             "a visually stunning and emotionally resonant masterpiece.",
             "a delightful comedy with tremendous heart and wit.",
@@ -111,18 +112,8 @@ def load_or_create_eval_dataset() -> pd.DataFrame:
             "charming, insightful, and full of delightful surprises.",
             "a sharp and witty script executed with great charm.",
             "a triumph of thoughtful storytelling and subtle drama.",
-            "profoundly moving and visually breathtaking work.",
-            "the chemistry between the leads is magnetic and authentic.",
-            "a wonderfully energetic and heartwarming celebration of life.",
-            "smart, funny, and surprisingly poignant throughout.",
-            "a rich and rewarding experience for movie lovers.",
-            "brimming with charm, energy, and genuine warmth.",
-            "an undeniably powerful and emotionally satisfying experience.",
-            "a poignant exploration executed with extraordinary grace.",
-            "a vibrant, colorful and thoroughly enjoyable adventure.",
-            "solid performances and sharp pacing make it a winner.",
-            "an uplifting and thoroughly engaging crowd-pleaser."
-        ] * 3  # 75 sentences
+            "profoundly moving and visually breathtaking work."
+        ] * 5
 
         neg_sentences = [
             "a tedious, completely uninspired and lifeless disaster.",
@@ -139,18 +130,8 @@ def load_or_create_eval_dataset() -> pd.DataFrame:
             "fails on virtually every level of storytelling and craft.",
             "an agonizingly slow slog that feels twice its actual length.",
             "insultingly shallow and painfully uninteresting.",
-            "a joyless and thoroughly frustrating disappointment.",
-            "poorly written, clumsily staged, and utterly forgettable.",
-            "it suffocates under the weight of its own pretensions.",
-            "the characters are gratingly obnoxious and thoroughly unsympathetic.",
-            "an awkward and completely unconvincing melodrama.",
-            "a hollow, artificial and painfully tedious slog.",
-            "offers neither excitement nor intellectual substance.",
-            "a disjointed and utterly frustrating waste of time.",
-            "limp pacing and shoddy direction undermine any potential.",
-            "unconvincing performances and a thoroughly laughable plot.",
-            "a depressing demonstration of how not to make a movie."
-        ] * 3  # 75 sentences
+            "a joyless and thoroughly frustrating disappointment."
+        ] * 5
 
         records = []
         for text in pos_sentences[:75]:
@@ -159,14 +140,14 @@ def load_or_create_eval_dataset() -> pd.DataFrame:
             records.append({"text": text, "label": 0})
         df_all = pd.DataFrame(records)
 
-    # Balance classes (75 positive, 75 negative)
+    # Balance classes (75 positive, 75 negative) with fixed seed
     df_pos = df_all[df_all["label"] == 1].sample(n=75, random_state=SEED)
     df_neg = df_all[df_all["label"] == 0].sample(n=75, random_state=SEED)
     df_balanced = pd.concat([df_pos, df_neg]).sample(frac=1.0, random_state=SEED).reset_index(drop=True)
     df_balanced["label_text"] = df_balanced["label"].map({1: "POSITIVE", 0: "NEGATIVE"})
 
     df_balanced[["text", "label", "label_text"]].to_csv(EVAL_INPUTS_PATH, index=False)
-    print(f"Saved balanced {len(df_balanced)}-sample evaluation set to '{EVAL_INPUTS_PATH}'.")
+    print(f"Saved balanced {len(df_balanced)}-sample SST-2 evaluation set to '{EVAL_INPUTS_PATH}'.")
     return df_balanced
 
 

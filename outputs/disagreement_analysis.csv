@@ -1,0 +1,10 @@
+idx,text,label,label_text,Model_A_Pred,Model_B_Pred,Model_A_Score,Model_B_Score,Analysis_Comment
+58,manages to be both repulsively sadistic and mundane . ,0,NEGATIVE,NEGATIVE,POSITIVE,0.9981,0.6929,Model A correctly identified sentiment nuance; Model B erred.
+158,"by getting myself wrapped up in the visuals and eccentricities of many of the characters , i found myself confused when it came time to get to the heart of the movie . ",0,NEGATIVE,POSITIVE,NEGATIVE,0.9936,0.6741,Model B correctly captured context; Model A was misled.
+64,"the script kicks in , and mr. hartley 's distended pace and foot-dragging rhythms follow . ",0,NEGATIVE,POSITIVE,NEGATIVE,0.8576,0.9899,Model B correctly captured context; Model A was misled.
+405,"outer-space buffs might love this film , but others will find its pleasures intermittent . ",0,NEGATIVE,POSITIVE,NEGATIVE,0.7708,0.789,Model B correctly captured context; Model A was misled.
+143,a solid film ... but more conscientious than it is truly stirring . ,1,POSITIVE,POSITIVE,NEGATIVE,0.9996,0.8885,Model A correctly identified sentiment nuance; Model B erred.
+477,a tv style murder mystery with a few big screen moments ( including one that seems to be made for a different film altogether ) . ,0,NEGATIVE,POSITIVE,NEGATIVE,0.9732,0.9826,Model B correctly captured context; Model A was misled.
+440,"this is wild surreal stuff , but brilliant and the camera just kind of sits there and lets you look at this and its like you 're going from one room to the next and none of them have any relation to the other . ",1,POSITIVE,NEGATIVE,POSITIVE,0.7187,0.9926,Model B correctly captured context; Model A was misled.
+770,i do n't think i laughed out loud once . ,0,NEGATIVE,POSITIVE,NEGATIVE,0.8525,0.9448,Model B correctly captured context; Model A was misled.
+145,the best that can be said about the work here of scottish director ritchie ... is that he obviously does n't have his heart in it . ,0,NEGATIVE,POSITIVE,NEGATIVE,0.8562,0.9972,Model B correctly captured context; Model A was misled.

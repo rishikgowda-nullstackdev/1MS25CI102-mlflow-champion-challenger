@@ -1,0 +1,35 @@
+{
+  "model_A": {
+    "hf_model_id": "distilbert-base-uncased-finetuned-sst-2-english",
+    "metrics": {
+      "accuracy": 0.8867,
+      "precision": 0.8625,
+      "recall": 0.92,
+      "macro_f1": 0.8865,
+      "weighted_f1": 0.8865,
+      "avg_latency_ms": 28.9,
+      "total_inference_s": 4.33
+    }
+  },
+  "model_B": {
+    "hf_model_id": "textattack/bert-base-uncased-SST-2",
+    "metrics": {
+      "accuracy": 0.92,
+      "precision": 0.92,
+      "recall": 0.92,
+      "macro_f1": 0.92,
+      "weighted_f1": 0.92,
+      "avg_latency_ms": 57.59,
+      "total_inference_s": 8.64
+    }
+  },
+  "comparison": {
+    "delta_macro_f1": 0.0335,
+    "delta_accuracy": 0.0333,
+    "delta_latency_ms": 28.69,
+    "latency_ratio": 1.99,
+    "primary_metric": "macro_f1",
+    "margin_threshold": 0.01,
+    "latency_guardrail": 2.0
+  }
+}
