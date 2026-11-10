@@ -1,9 +1,8 @@
 # Champion–Challenger Model Comparison with Hugging Face and MLflow
 
-| Course Assessment | Mini Project: End-to-End MLflow Deployment (50 Marks) |
 |---|---|
-| **Student Name** | Rishikgowda S M |
-| **Student USN** | 1MS25CI102 |
+| **Name** | Rishikgowda S M |
+| **USN** | 1MS25CI102 |
 | **Task** | Binary Sentiment Classification |
 | **Experiment Name** | `hf-sentiment-champion-challenger` |
 | **Registered Model** | `sentiment-model` |
