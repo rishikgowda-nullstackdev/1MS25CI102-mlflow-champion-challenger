@@ -25,3 +25,6 @@ Thumbs.db
 ~$*.doc
 /FINAL_MLOPS_LAB_RECORD_1MS25CI102.docx
 
+
+# VS Code settings
+.vscode/
