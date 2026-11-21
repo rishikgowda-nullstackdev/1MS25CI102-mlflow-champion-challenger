@@ -4,8 +4,9 @@
 |---|---|
 | **Name** | Rishikgowda S M |
 | **USN** | 1MS25CI102 |
-| **Section** | B (AI & ML) |
-| **Course** | Skill Lab (MLOps with MLflow) `[22CI61]` |
+| **Branch** | CSE(AI&ML)|
+| **Section** | B  |
+| **Course** | Skill Lab (MLOps with MLflow) `[CISL-1]` |
 | **Experiment Name** | `hf-sentiment-champion-challenger` |
 | **Registered Model** | `sentiment-model` |
 
@@ -248,5 +249,5 @@ Full predictions are saved to [`outputs/new_data_predictions.csv`](outputs/new_d
     ├── mlflow_compare_view.png
     ├── predict_terminal_output.png
     ├── registry_aliases.png
-    └── registry_versions_compare.png
+    └── registry_versions_compare.png 
 ```
